@@ -7,7 +7,7 @@ const {
   createCard,
   deleteCard,
   likeCard,
-  dislikeCard
+  dislikeCard,
 } = require('../controllers/cards');
 
 const { auth } = require('../middlewares/auth');
@@ -32,11 +32,10 @@ const validateCard = celebrate({
   }),
 });
 
-
-router.get("/cards", getCards); // защитить auth
-router.post("/cards", validateCard, createCard); // защитить auth
-router.delete("/cards/:id", validateCardId, deleteCard); // защитить auth
-router.put("/cards/:id/likes", validateCardId, likeCard); // защитить auth
-router.delete("/cards/:id/likes", validateCardId, dislikeCard); // защитить auth
+router.get('/cards', getCards); // защитить auth
+router.post('/cards', validateCard, createCard); // защитить auth
+router.delete('/cards/:id', validateCardId, deleteCard); // защитить auth
+router.put('/cards/:id/likes', validateCardId, likeCard); // защитить auth
+router.delete('/cards/:id/likes', validateCardId, dislikeCard); // защитить auth
 
 module.exports = router;

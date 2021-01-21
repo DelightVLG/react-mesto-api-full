@@ -1,9 +1,9 @@
-const User = require('../models/user');
-const bcrypt = require("bcryptjs");
+const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-const BadRequestError = require('../errors/BadRequestError')
-const NotFoundError = require('../errors/NotFoundError')
-const ConflictError = require('../errors/ConflictError')
+const User = require('../models/user');
+const BadRequestError = require('../errors/BadRequestError');
+const NotFoundError = require('../errors/NotFoundError');
+const ConflictError = require('../errors/ConflictError');
 
 const { NODE_ENV, JWT_SECRET } = process.env;
 
@@ -49,7 +49,7 @@ const createUser = (req, res, next) => {
   } = req.body;
 
   if (req.body.password.length < 8) {
-    throw new BadRequestError("Пароль менее 8 символов");
+    throw new BadRequestError('Пароль менее 8 символов');
   } else {
     bcrypt.hash(password, 10)
       .then((hash) => User.create({
@@ -61,7 +61,7 @@ const createUser = (req, res, next) => {
       }))
       .then((newUser) => {
         if (!newUser) {
-          throw new NotFoundError("Неправильно переданы данные");
+          throw new NotFoundError('Неправильно переданы данные');
         } else {
           res.send({
             name: newUser.name,
@@ -72,10 +72,10 @@ const createUser = (req, res, next) => {
         }
       })
       .catch((err) => {
-        if (err.name === "ValidationError") {
-          next(new BadRequestError("Ошибка валидации. Введены некорректные данные"));
+        if (err.name === 'ValidationError') {
+          next(new BadRequestError('Ошибка валидации. Введены некорректные данные'));
         } else if (err.code === 11000) {
-          next(new ConflictError("Пользователь с таким email уже существует"));
+          next(new ConflictError('Пользователь с таким email уже существует'));
         }
         next(err);
       });

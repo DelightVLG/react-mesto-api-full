@@ -53,7 +53,7 @@ const likeCard = (req, res, next) => {
     req.params.id,
     { $addToSet: { likes: req.user._id } },
     { new: true },
-    )
+  )
     .then((card) => {
       if (!card) {
         throw new NotFoundError('Карточка не найдена');
@@ -76,7 +76,7 @@ const dislikeCard = (req, res, next) => {
     req.params.id,
     { $pull: { likes: req.user._id } },
     { new: true },
-    )
+  )
     .then((card) => {
       if (!card) {
         throw new NotFoundError('Карточка не найдена');
@@ -99,5 +99,5 @@ module.exports = {
   createCard,
   deleteCard,
   likeCard,
-  dislikeCard
+  dislikeCard,
 };
