@@ -94,7 +94,7 @@ class Api {
 }
 
 export const api = new Api({
-  url: '//localhost:3000',
+  url: 'http://api.vlg.students.nomoredomains.rocks/',
   headers: {
     "Content-type": "application/json",
   },
