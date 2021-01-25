@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Route, Switch, Redirect, useHistory } from 'react-router-dom';
 import ProtectedRoute from './ProtectedRoute';
 
-import api from '../utils/api';
+import { api } from '../utils/api';
 import * as auth from '../utils/auth';
 import { CurrentUserContext } from '../contexts/CurrentUserContext';
 
@@ -48,7 +48,7 @@ function App() {
         .getContent(token)
         .then((res) => {
           if (res) {
-            setUserData({ email: res.data.email });
+            setUserData({ email: res.email });
             setLoggedIn(true);
           }
         })
@@ -56,11 +56,11 @@ function App() {
     }
   };
 
-  React.useEffect(() => {
+  useEffect(() => {
     tokenCheck();
   }, []);
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (loggedIn) {
       history.push("/");
     }
@@ -69,27 +69,38 @@ function App() {
   useEffect(() => {
     setIsLoading(true);
 
-    Promise.all([
-      api.getInitialCardList(),
-      api.getUserInfo(),
-    ])
-      .then(([cardsData, userData]) => {
-        const items = cardsData.map((item) => ({
-          _id: item._id,
-          name: item.name,
-          link: item.link,
-          likes: item.likes,
-          owner: item.owner,
-        }));
+    if (loggedIn) {
+      const token = localStorage.getItem("token");
+      auth
+        .getContent(token)
+        .then((res) => {
+          if (res) {
+            setUserData({ email: res.email });
+          }
+        })
+      history.push("/");
+      const promises = [api.getUserInfo(), api.getInitialCardList()];
+      Promise.all(promises)
+        .then((results) => {
+          setCurrentUser(results[0]);
+          setupCards(results[1]);
+        })
+        .catch((err) => console.log(`Error ${err}`))
+        .finally(() => setIsLoading(false))
+    }
+  }, [loggedIn, history]);
 
-        setCurrentUser(userData);
-        setCards(items);
-      })
-      .catch((err) => {
-        console.error(err);
-      })
-      .finally(() => setIsLoading(false));
-  }, []);
+  const setupCards = (cards) => {
+    setCards(
+      cards.map((item) => ({
+        _id: item._id,
+        link: item.link,
+        name: item.name,
+        owner: item.owner,
+        likes: item.likes,
+      }))
+    );
+  }
 
   function handleInfoToolTip() {
     setIsInfoToolTipOpen(true);
@@ -109,12 +120,12 @@ function App() {
       .catch((err) => console.error(err));
   };
 
+
   const handleLogout = () => {
     localStorage.removeItem("token");
     setUserData({ email: "" });
     setLoggedIn(false);
   };
-
 
   const handleRegister = (password, email) => {
     auth
@@ -186,7 +197,6 @@ function App() {
   };
 
   function handleCardDelete(card) {
-    console.log(card);
     api.deleteCard(card._id)
       .then(() => {
         const newCards = cards.filter((item) => item._id !== card._id);
@@ -198,9 +208,9 @@ function App() {
   }
 
   function handleCardLike(card) {
-    const isLiked = card.likes.some((like) => like._id === currentUser._id);
-
-    api.changeLikeCardStatus(card._id, isLiked)
+    const isLiked = card.likes.some((like) => like === currentUser._id);
+    api
+      .changeLikeCardStatus(card._id, !isLiked)
       .then((newCard) => {
         const newCards = cards.map((item) => (item._id === card._id ? newCard : item));
         setCards(newCards);
