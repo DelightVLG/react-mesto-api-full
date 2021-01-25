@@ -53,6 +53,7 @@ const validateUserLogin = celebrate({
 
 const allowedCors = [
   'https://vlg.students.nomoredomains.rocks',
+  'https://api.vlg.students.nomoredomains.rocks',
   'http://localhost:3001',
 ];
 
