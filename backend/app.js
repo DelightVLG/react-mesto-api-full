@@ -52,7 +52,7 @@ const validateUserLogin = celebrate({
 });
 
 const allowedCors = [
-  'https://grenade.students.nomoredomains.rocks',
+  'https://vlg.students.nomoredomains.rocks',
   'http://localhost:3001',
 ];
 
