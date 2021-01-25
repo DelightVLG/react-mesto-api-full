@@ -1,0 +1,5 @@
+.modal__container_type_tooltip {
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+}
