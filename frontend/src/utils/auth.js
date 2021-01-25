@@ -1,4 +1,4 @@
-export const BASE_URL = 'http://api.vlg.students.nomoredomains.rocks/';
+export const BASE_URL = 'http://api.vlg.students.nomoredomains.rocks';
 
 const checkResponse = (response) => response.ok
   ? response.json()
