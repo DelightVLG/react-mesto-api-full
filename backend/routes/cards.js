@@ -4,19 +4,14 @@ const validator = require('validator');
 
 const {
   getCards,
+  getCard,
   createCard,
   deleteCard,
   likeCard,
   dislikeCard,
-} = require('../controllers/cards');
+} = require('../controllers/cards.js');
 
-const { auth } = require('../middlewares/auth');
-
-const validateCardId = celebrate({
-  params: Joi.object().keys({
-    id: Joi.string().alphanum().length(24).hex(),
-  }),
-});
+const auth = require('../middlewares/auth');
 
 const validateCard = celebrate({
   body: Joi.object().keys({
@@ -32,10 +27,17 @@ const validateCard = celebrate({
   }),
 });
 
-router.get('/cards', getCards); // защитить auth
-router.post('/cards', validateCard, createCard); // защитить auth
-router.delete('/cards/:id', validateCardId, deleteCard); // защитить auth
-router.put('/cards/:id/likes', validateCardId, likeCard); // защитить auth
-router.delete('/cards/:id/likes', validateCardId, dislikeCard); // защитить auth
+const validateCardId = celebrate({
+  params: Joi.object().keys({
+    id: Joi.string().alphanum().length(24).hex(),
+  }),
+});
+
+router.get('/cards', auth, getCards);
+router.get('/cards/:id', auth, validateCardId, getCard);
+router.post('/cards', auth, validateCard, createCard);
+router.delete('/cards/:id', auth, validateCardId, deleteCard);
+router.put('/cards/:id/likes', auth, validateCardId, likeCard);
+router.delete('/cards/:id/likes', auth, validateCardId, dislikeCard);
 
 module.exports = router;

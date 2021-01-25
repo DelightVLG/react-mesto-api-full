@@ -2,35 +2,85 @@ require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
+const cors = require('cors');
 
-const path = require('path');
-const usersRouter = require('./routes/users');
-const cardsRouter = require('./routes/cards');
-const pageNotFoundRoute = require('./routes/PageNotFound');
+const {
+  errors,
+  celebrate,
+  Joi,
+  CelebrateError,
+} = require('celebrate');
 
+const validator = require('validator');
+const { requestLogger, errorLogger } = require('./middlewares/logger');
+const { login, createUser } = require('./controllers/users.js');
+
+const NotFoundError = require('./errors/NotFoundError');
+
+const routes = require('./routes/index');
+
+const PORT = 3000;
 const app = express();
-const { PORT = 3000 } = process.env;
 
 mongoose.connect('mongodb://localhost:27017/mestodb', {
   useNewUrlParser: true,
   useCreateIndex: true,
   useFindAndModify: false,
+  useUnifiedTopology: true,
 });
+
+const validateUserSignup = celebrate({
+  body: Joi.object().keys({
+    email: Joi.string().required().email(),
+    password: Joi.string().required().min(8),
+    name: Joi.string(),
+    about: Joi.string(),
+    avatar: Joi.string().custom((url) => {
+      if (!validator.isURL(url)) {
+        throw new CelebrateError('Неверный URL');
+      }
+      return url;
+    }),
+  }),
+});
+
+const validateUserLogin = celebrate({
+  body: Joi.object().keys({
+    email: Joi.string().required().email(),
+    password: Joi.string().required().min(8),
+  }),
+});
+
+const allowedCors = [
+  'https://grenade.students.nomoredomains.rocks',
+  'http://localhost:3001',
+];
+
+app.use(cors({
+  origin: allowedCors,
+}));
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
-app.use(express.static(path.join(__dirname, 'public')));
-app.use((req, res, next) => {
-  req.user = {
-    _id: '5fe37be287e71126a8b57312',
-  };
 
-  next();
+app.use(requestLogger);
+app.use(errorLogger);
+app.use(errors());
+
+app.get('/crash-test', () => {
+  setTimeout(() => {
+    throw new Error('Сервер сейчас упадёт');
+  }, 0);
 });
 
-app.use('/', usersRouter);
-app.use('/', cardsRouter);
-app.use('/', pageNotFoundRoute);
+app.post('/signin', validateUserLogin, login);
+app.post('/signup', validateUserSignup, createUser);
+
+app.use(routes);
+
+app.use('*', () => {
+  throw new NotFoundError('Запрашиваемый ресурс не найден');
+});
 
 app.use((err, req, res, next) => {
   const { statusCode = 500, message } = err;

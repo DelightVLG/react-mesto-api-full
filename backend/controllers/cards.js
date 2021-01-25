@@ -4,13 +4,32 @@ const NotFoundError = require('../errors/NotFoundError');
 const ForbiddenError = require('../errors/ForbiddenError');
 
 const getCards = (req, res, next) => {
-  Card.find({})
-    .orFail(() => {
-      throw new NotFoundError({ message: 'Карточки не найдены' });
-    })
+  Card.find()
     .then((cards) => {
-      res.send({ data: cards });
-    }).catch(next);
+      if (!cards) {
+        throw new NotFoundError('Карточки не найдены');
+      } else {
+        res.send(cards);
+      }
+    })
+    .catch(next);
+};
+
+const getCard = (req, res, next) => {
+  Card.findById(req.params.id)
+    .then((card) => {
+      if (!card) {
+        throw new NotFoundError('Нет карточки с таким id');
+      } else {
+        res.send(card);
+      }
+    })
+    .catch((err) => {
+      if (err.name === 'CastError') {
+        next(new BadRequestError('invalid id'));
+      }
+      next(err);
+    });
 };
 
 const createCard = (req, res, next) => {
@@ -96,6 +115,7 @@ const dislikeCard = (req, res, next) => {
 
 module.exports = {
   getCards,
+  getCard,
   createCard,
   deleteCard,
   likeCard,
