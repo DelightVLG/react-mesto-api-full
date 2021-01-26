@@ -159,7 +159,7 @@ const User = require('../models/user');
 const NotFoundError = require('../errors/NotFoundError');
 const BadRequestError = require('../errors/BadRequestError');
 const UnauthError = require('../errors/UnauthorizedError');
-const UniqueError = require('../errors/UnauthorizedError');
+const ConflictError = require('../errors/ConflictError');
 
 const { NODE_ENV, JWT_SECRET } = process.env;
 
@@ -243,8 +243,8 @@ module.exports.createUser = (req, res, next) => {
       .catch((err) => {
         if (err.name === 'ValidationError') {
           next(new BadRequestError('Ошибка валидации. Введены некорректные данные'));
-        } else if (err.code === 11000) {
-          next(new UniqueError('Данный email уже зарегистрирован'));
+        } else if (err.code === 11000 || err.name === 'MongoError') {
+          next(new ConflictError('Данный email уже зарегистрирован'));
         }
         next(err);
       });

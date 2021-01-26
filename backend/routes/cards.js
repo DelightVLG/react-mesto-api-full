@@ -1,6 +1,8 @@
 const router = require('express').Router();
-const { celebrate, Joi, CelebrateError } = require('celebrate');
+const { celebrate, Joi } = require('celebrate');
 const validator = require('validator');
+
+const BadRequestError = require('../errors/BadRequestError');
 
 const {
   getCards,
@@ -20,7 +22,8 @@ const validateCard = celebrate({
       .required()
       .custom((url) => {
         if (!validator.isURL(url)) {
-          throw new CelebrateError('Неверный URL');
+          // throw new CelebrateError('Неверный URL');
+          throw new BadRequestError('Неверный URL');
         }
         return url;
       }),
