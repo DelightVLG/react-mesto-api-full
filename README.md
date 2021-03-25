@@ -35,11 +35,12 @@ http://vlg.students.nomoredomains.rocks/
 ▪️ CRA <br/>
 ▪️ API <br/>
 ▪️ BEM nested <br/>
-▪️ nodejs
-▪️ express
-▪️ nodemon
-▪️ MongoDB
-▪️ Mongoose
+▪️ nodejs<br/>
+▪️ express<br/>
+▪️ nodemon<br/>
+▪️ MongoDB<br/>
+▪️ Mongoose<br/>
+▪️ nginx<br/>
 
 ## Планы по доработке
 🔹 Доделать адаптив для модальных окон<br/>
