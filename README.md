@@ -18,7 +18,7 @@ mongoDB, pm2, nginx и конфигурировал его.
 `npm run start` — запускает сервер   
 `npm run dev` — запускает сервер с hot-reload
 
-#### Drontend
+#### Frontend
 `npm run start` — запускает приложение локально 
 `npm run build` — собирает приложения для деплоя
 
